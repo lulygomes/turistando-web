@@ -41,7 +41,7 @@ export const Button = styled.div`
   padding: 8px;
   text-align: center;
   
-  a {
+  p {
     color: #fff;
     font-size: 20px;
     text-decoration: none;

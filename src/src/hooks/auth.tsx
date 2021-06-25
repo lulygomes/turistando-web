@@ -17,9 +17,15 @@ const AuthProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<User>({} as User)
 
   const signIn = useCallback(async ({name}) => {
-    const { data } = await api.post('/user', {name});
+    try {
 
-    setUser(data)
+      const { data } = await api.post('/user', {name});
+      
+      console.log(data);
+      setUser(data)
+    } catch (err) {
+      console.log(err)
+    }
   }, []);
 
   return (

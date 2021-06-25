@@ -1,12 +1,21 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useCallback, useState } from 'react';
 
+import { useAuth } from '../../hooks/auth';
 import Input from '../../components/Input';
 
 import { Container, Contante, Button } from './styles';
+import { useHistory } from 'react-router-dom';
 
 const Welcome: React.FC = () => {
+  const [name, setName] = useState<string>('');
+  const { signIn } = useAuth();
+  const history = useHistory();
 
+  const handleLogin = useCallback(async() => {
+    console.log('chamou', name)
+    await signIn(name)
+    // history.push('/home')
+  }, [name, signIn, history]);
   return (
     <Container>
       <Contante>
@@ -18,11 +27,13 @@ const Welcome: React.FC = () => {
         <Input
           id='userName'
           label="Nome"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           placeholder="Digite seu nome"
         />
 
-        <Button>
-          <Link to='/home'>Entrar</Link>
+        <Button onClick={handleLogin}>
+          <p>Entrar</p>
         </Button>
       </Contante>
     </Container>
