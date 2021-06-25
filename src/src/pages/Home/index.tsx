@@ -1,8 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
+import { useAuth } from '../../hooks/auth'
+
 import Header from '../../components/Header'
 import Input from '../../components/Input';
 import Add from '../../components/Modal/Add';
+import Details from '../../components/Modal/Details';
+
 import api from '../../service/api';
 
 
@@ -15,6 +19,7 @@ import {
   PlaceBox,
   PlaceButton,
 } from './styles';
+import { useHistory } from 'react-router-dom';
 
 
 interface ResponseData {
@@ -29,7 +34,18 @@ interface ResponseData {
 
 const Home: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false)
+  const [modalOpenDetails, setModalOpenDetails] = useState(false)
   const [places, setPlaces] = useState<ResponseData[]>([])
+  const [placeSelected, setPlaceSelected] = useState<ResponseData>({} as ResponseData)
+  const [search, setSearch] = useState('');
+  const { user } = useAuth()
+  const history = useHistory()
+
+  useEffect(() => {
+    if (!user.id) {
+      history.push('/')
+    }
+  }, [history, user]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -45,6 +61,26 @@ const Home: React.FC = () => {
     setModalOpen(true)
   }, []);
 
+  const handleOpenModalDetails = useCallback((place) => {
+    setPlaceSelected(place)
+    setModalOpenDetails(true)
+  }, []);
+
+  const handleSearch = useCallback(async() => {
+    try {
+      const { data } = await api.get('/place/find', {
+        params: {
+          find: search
+        }
+      })
+      
+      setPlaces(data);
+      setSearch('');
+    } catch (err) {
+      console.log(err)
+    }
+  }, [search]);
+
   return (
     <Container>
       <Header
@@ -53,12 +89,14 @@ const Home: React.FC = () => {
       <Search>
         <InputBox>
           <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             id='search'
             label='Busca'
             placeholder="Digite um termo para buscar um ponto turistico"
           />
         </InputBox>
-        <SearchButton>
+        <SearchButton onClick={() => handleSearch()} >
           <p>Buscar</p>
         </SearchButton>
       </Search>
@@ -67,16 +105,26 @@ const Home: React.FC = () => {
           <PlaceBox key={place.id}>
             <p className='name'>{place.name}</p>
             <p className='about'>{place.about}</p>
-            <PlaceButton>
+            <PlaceButton
+              onClick={() => handleOpenModalDetails(place)}
+            >
               ver detalhes...
             </PlaceButton>
           </PlaceBox>
         ))}
       </Content>
 
+      {placeSelected && modalOpenDetails && (
+        <Details 
+          setModalOpen={setModalOpenDetails}
+          place={placeSelected}
+        />
+      )}
+
       {modalOpen && (
         <Add
           setModalOpen={setModalOpen}
+          setPlaces={setPlaces}
         />
       )}
     </Container>

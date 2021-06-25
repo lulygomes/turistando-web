@@ -18,8 +18,19 @@ import {
 } from './styles';
 import api from '../../../service/api';
 
+interface ResponseData {
+  id: string;
+  name: string;
+  city: string;
+  uf: string;
+  reference: string;
+  about: string;
+  owner: string;
+}
+
 interface AddDto {
-  setModalOpen: Function
+  setModalOpen: Function;
+  setPlaces: Function;
 }
 const ufList = [
   {
@@ -136,7 +147,7 @@ const ufList = [
   },
 ]
 
-const Add: React.FC<AddDto> = ({ setModalOpen }) => {
+const Add: React.FC<AddDto> = ({ setModalOpen, setPlaces }) => {
   const { user } = useAuth();
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
@@ -155,14 +166,16 @@ const Add: React.FC<AddDto> = ({ setModalOpen }) => {
         about,
         owner: user.name
       }
-      await api.post('/place', place)
+      const { data } = await api.post('/place', place)
+
+      setPlaces((current: ResponseData[]) => [data, ...current])
 
       setModalOpen(false)
     } catch (err) {
       console.log(err)
     }
 
-  }, [about, city, name, reference, setModalOpen, uf, user.name]);
+  }, [about, city, name, reference, setModalOpen, setPlaces, uf, user.name]);
 
   return (
     <Container>
