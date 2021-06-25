@@ -1,20 +1,23 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 
 import Input from '../../Input';
+import { useAuth } from '../../../hooks/auth';
 
-import { 
-  Container, 
-  Content, 
-  Close, 
-  Location, 
-  InputBox, 
-  TextArea, 
-  ButtonBox, 
+import {
+  Container,
+  Content,
+  Close,
+  Location,
+  InputBox,
+  TextArea,
+  ButtonBox,
   Button,
   ConfirmButton,
   CancelButton,
+  Content
 } from './styles';
+import api from '../../../service/api';
 
 interface AddDto {
   setModalOpen: Function
@@ -135,7 +138,32 @@ const ufList = [
 ]
 
 const Add: React.FC<AddDto> = ({ setModalOpen }) => {
+  const { user } = useAuth();
+  const [name, setName] = useState('');
+  const [city, setCity] = useState('');
+  const [uf, setUf] = useState('');
+  const [reference, setReference] = useState('');
+  const [about, setAbout] = useState('');
 
+
+  const handleSubmit = useCallback(async () => {
+    try {
+      const place = {
+        name,
+        city,
+        uf,
+        reference,
+        about,
+        owner: user.name
+      }
+      await api.post('/place', place)
+
+      setModalOpen(false)
+    } catch (err) {
+      console.log(err)
+    }
+
+  }, [about, city, name, reference, setModalOpen, uf, user.name]);
 
   return (
     <Container>
@@ -146,6 +174,8 @@ const Add: React.FC<AddDto> = ({ setModalOpen }) => {
           <Input
             id="name"
             label="Nome do local"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             containerStyles={{
               flex: 1,
               margin: '8px'
@@ -154,18 +184,28 @@ const Add: React.FC<AddDto> = ({ setModalOpen }) => {
 
           <Location>
             <label htmlFor="city">Localização</label>
-            <input id='city' type="text" placeholder="Cidade" />
+            <input
+              id='city'
+              type="text"
+              placeholder="Cidade"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            />
             <select
               aria-label="UF"
+              value={uf}
+              onChange={(e) => setUf(e.target.value)}
             >
               {ufList.map(({ uf, value }) => (
-                <option value={value}>{uf}</option>
+                <option value={value} key={uf}>{uf}</option>
               ))}
             </select>
           </Location>
           <Input
             id="reference"
             label="Referencia"
+            value={reference}
+            onChange={(e) => setReference(e.target.value)}
             containerStyles={{
               flex: 2,
               margin: '8px'
@@ -173,20 +213,27 @@ const Add: React.FC<AddDto> = ({ setModalOpen }) => {
           />
 
         </InputBox>
-          <TextArea>
-            <label htmlFor="about">Descrição</label>
-            <textarea name="about" id="about" rows={8} placeholder="Diga um pouco sobre esse lugar" ></textarea>
-          </TextArea>
+        <TextArea>
+          <label htmlFor="about">Descrição</label>
+          <textarea
+            name="about"
+            id="about"
+            value={about}
+            onChange={(e) => setAbout(e.target.value)}
+            rows={8}
+            placeholder="Diga um pouco sobre esse lugar"
+          ></textarea>
+        </TextArea>
 
-          <ButtonBox>
-            <CancelButton onClick={() => setModalOpen()}>
-              Cancelar
-            </CancelButton>
-            <ConfirmButton>
-              Cadastar
-            </ConfirmButton>
+        <ButtonBox>
+          <CancelButton onClick={() => setModalOpen()}>
+            Cancelar
+          </CancelButton>
+          <ConfirmButton onClick={() => handleSubmit()}>
+            Cadastar
+          </ConfirmButton>
 
-          </ButtonBox>
+        </ButtonBox>
 
         <Close onClick={() => setModalOpen()}>
           <AiOutlineCloseCircle color='red' size={25} />
