@@ -16,12 +16,10 @@ const AuthContext = createContext<AuthContextState>({} as AuthContextState);
 const AuthProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<User>({} as User)
 
-  const signIn = useCallback(async ({name}) => {
+  const signIn = useCallback(async (name) => {
     try {
-
-      const { data } = await api.post('/user', {name});
+      const { data } = await api.post('/user', { name });
       
-      console.log(data);
       setUser(data)
     } catch (err) {
       console.log(err)

@@ -12,6 +12,7 @@ const Welcome: React.FC = () => {
   const history = useHistory();
 
   const handleLogin = useCallback(async() => {
+    console.log(name)
     await signIn(name)
     history.push('/home')
   }, [name, signIn, history]);
