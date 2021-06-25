@@ -12,9 +12,8 @@ const Welcome: React.FC = () => {
   const history = useHistory();
 
   const handleLogin = useCallback(async() => {
-    console.log('chamou', name)
     await signIn(name)
-    // history.push('/home')
+    history.push('/home')
   }, [name, signIn, history]);
   return (
     <Container>
