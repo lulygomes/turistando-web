@@ -15,7 +15,6 @@ import {
   Button,
   ConfirmButton,
   CancelButton,
-  Content
 } from './styles';
 import api from '../../../service/api';
 
